@@ -8,7 +8,7 @@ class Album {
 	boolean tilgjengeligINorge
 	Artist artist
 	
-	static hasMany = [sporen:Spor]
+	static hasMany = [sporene:Spor]
 	
     static constraints = {
     	aar nullable:true

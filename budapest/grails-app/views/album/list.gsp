@@ -23,33 +23,21 @@
 			<table>
 				<thead>
 					<tr>
-					
-						<g:sortableColumn property="aar" title="${message(code: 'album.aar.label', default: 'Aar')}" />
-					
 						<th><g:message code="album.artist.label" default="Artist" /></th>
-					
-						<g:sortableColumn property="navn" title="${message(code: 'album.navn.label', default: 'Navn')}" />
-					
-						<g:sortableColumn property="spotifyURI" title="${message(code: 'album.spotifyURI.label', default: 'Spotify URI')}" />
-					
-						<g:sortableColumn property="tilgjengeligINorge" title="${message(code: 'album.tilgjengeligINorge.label', default: 'Tilgjengelig IN orge')}" />
-					
+						<g:sortableColumn property="navn" title="Album" />
+						<g:sortableColumn property="aar" title="År" />
+						<g:sortableColumn property="spotifyURI" title="Spotify URI" />
+						<g:sortableColumn property="tilgjengeligINorge" title="Tilgjengelig i Norge" />
 					</tr>
 				</thead>
 				<tbody>
 				<g:each in="${albumInstanceList}" status="i" var="albumInstance">
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
-					
-						<td><g:link action="show" id="${albumInstance.id}">${fieldValue(bean: albumInstance, field: "aar")}</g:link></td>
-					
-						<td>${fieldValue(bean: albumInstance, field: "artist")}</td>
-					
-						<td>${fieldValue(bean: albumInstance, field: "navn")}</td>
-					
-						<td>${fieldValue(bean: albumInstance, field: "spotifyURI")}</td>
-					
-						<td><g:formatBoolean boolean="${albumInstance.tilgjengeligINorge}" /></td>
-					
+						<td>${fieldValue(bean: albumInstance, field: "artist.navn")}</td>
+						<td><g:link action="show" id="${albumInstance.id}">${fieldValue(bean: albumInstance, field: "navn")}</g:link></td>
+						<td>${albumInstance.aar}</td>
+						<td><g:link url="${albumInstance.spotifyURI}">${fieldValue(bean: albumInstance, field: "spotifyURI")}</g:link></td>
+						<td><g:formatBoolean boolean="${albumInstance.tilgjengeligINorge}" /></td>					
 					</tr>
 				</g:each>
 				</tbody>

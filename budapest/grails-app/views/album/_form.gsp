@@ -26,14 +26,14 @@
 	<g:textField name="navn" value="${albumInstance?.navn}"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: albumInstance, field: 'sporen', 'error')} ">
-	<label for="sporen">
-		<g:message code="album.sporen.label" default="Sporen" />
+<div class="fieldcontain ${hasErrors(bean: albumInstance, field: 'sporene', 'error')} ">
+	<label for="sporene">
+		<g:message code="album.sporene.label" default="Sporene" />
 		
 	</label>
 	
 <ul class="one-to-many">
-<g:each in="${albumInstance?.sporen?}" var="s">
+<g:each in="${albumInstance?.sporene?}" var="s">
     <li><g:link controller="spor" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></li>
 </g:each>
 <li class="add">

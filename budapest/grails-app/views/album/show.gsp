@@ -50,12 +50,12 @@
 				</li>
 				</g:if>
 			
-				<g:if test="${albumInstance?.sporen}">
+				<g:if test="${albumInstance?.sporene}">
 				<li class="fieldcontain">
-					<span id="sporen-label" class="property-label"><g:message code="album.sporen.label" default="Sporen" /></span>
+					<span id="sporene-label" class="property-label"><g:message code="album.sporene.label" default="Sporene" /></span>
 					
-						<g:each in="${albumInstance.sporen}" var="s">
-						<span class="property-value" aria-labelledby="sporen-label"><g:link controller="spor" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></span>
+						<g:each in="${albumInstance.sporene}" var="s">
+						<span class="property-value" aria-labelledby="sporene-label"><g:link controller="spor" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></span>
 						</g:each>
 					
 				</li>
