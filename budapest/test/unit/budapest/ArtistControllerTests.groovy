@@ -1,10 +1,6 @@
 package budapest
 
 
-
-import org.junit.*
-import grails.test.mixin.*
-
 @TestFor(ArtistController)
 @Mock(Artist)
 class ArtistControllerTests {
