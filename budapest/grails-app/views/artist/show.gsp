@@ -13,7 +13,7 @@
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
 				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
+				<li><g:link class="create" action="create">Ny artist</g:link></li>
 			</ul>
 		</div>
 		<div id="show-artist" class="content scaffold-show" role="main">
@@ -23,31 +23,31 @@
 			</g:if>
 			<ol class="property-list artist">
 			
-				<g:if test="${artistInstance?.spotifyURI}">
-				<li class="fieldcontain">
-					<span id="spotifyURI-label" class="property-label"><g:message code="artist.spotifyURI.label" default="Spotify URI" /></span>
-					
-						<span class="property-value" aria-labelledby="spotifyURI-label"><g:fieldValue bean="${artistInstance}" field="spotifyURI"/></span>
-					
-				</li>
-				</g:if>
-			
-				<g:if test="${artistInstance?.albumer}">
-				<li class="fieldcontain">
-					<span id="albumer-label" class="property-label"><g:message code="artist.albumer.label" default="Albumer" /></span>
-					
-						<g:each in="${artistInstance.albumer}" var="a">
-						<span class="property-value" aria-labelledby="albumer-label"><g:link controller="album" action="show" id="${a.id}">${a?.encodeAsHTML()}</g:link></span>
-						</g:each>
-					
-				</li>
-				</g:if>
-			
 				<g:if test="${artistInstance?.navn}">
 				<li class="fieldcontain">
 					<span id="navn-label" class="property-label"><g:message code="artist.navn.label" default="Navn" /></span>
 					
 						<span class="property-value" aria-labelledby="navn-label"><g:fieldValue bean="${artistInstance}" field="navn"/></span>
+					
+				</li>
+				</g:if>
+			
+				<g:if test="${artistInstance?.album}">
+				<li class="fieldcontain">
+					<span id="album-label" class="property-label"><g:message code="artist.album.label" default="Album" /></span>
+					
+						<g:each in="${artistInstance.album}" var="a">
+						<span class="property-value" aria-labelledby="album-label"><g:link controller="album" action="show" id="${a.id}">${a?.navn}</g:link></span>
+						</g:each>
+					
+				</li>
+				</g:if>
+				
+				<g:if test="${artistInstance?.spotifyURI}">
+				<li class="fieldcontain">
+					<span id="spotifyURI-label" class="property-label"><g:message code="artist.spotifyURI.label" default="Spotify URI" /></span>
+					
+						<span class="property-value" aria-labelledby="spotifyURI-label"><g:fieldValue bean="${artistInstance}" field="spotifyURI"/></span>
 					
 				</li>
 				</g:if>

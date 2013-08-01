@@ -5,7 +5,7 @@ import budapest.Spor;
 class BootStrap {
 
     def init = { servletContext ->
-		Artist artist = new Artist(navn: "Adele", sporifyURI: "spotify:artist:4dpARuHxo51G3z768sgnrY").save();
+		Artist artist = new Artist(navn: "Adele", spotifyURI: "spotify:artist:4dpARuHxo51G3z768sgnrY").save();
 		Set<Spor> sporene = new HashSet<Spor>()
 		sporene.add(new Spor(navn: "Spor 1", nummer: 1).save())
 		sporene.add(new Spor(navn: "Spor 2", nummer: 2).save())

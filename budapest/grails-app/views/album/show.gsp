@@ -13,7 +13,7 @@
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
 				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
+				<li><g:link class="create" action="create">Nytt album</g:link></li>
 			</ul>
 		</div>
 		<div id="show-album" class="content scaffold-show" role="main">
@@ -22,13 +22,10 @@
 			<div class="message" role="status">${flash.message}</div>
 			</g:if>
 			<ol class="property-list album">
-			
 				<g:if test="${albumInstance?.aar}">
 				<li class="fieldcontain">
-					<span id="aar-label" class="property-label"><g:message code="album.aar.label" default="Aar" /></span>
-					
-						<span class="property-value" aria-labelledby="aar-label"><g:fieldValue bean="${albumInstance}" field="aar"/></span>
-					
+					<span id="aar-label" class="property-label">År</span>
+						<span class="property-value" aria-labelledby="aar-label">${albumInstance.aar}</span>
 				</li>
 				</g:if>
 			
@@ -36,7 +33,7 @@
 				<li class="fieldcontain">
 					<span id="artist-label" class="property-label"><g:message code="album.artist.label" default="Artist" /></span>
 					
-						<span class="property-value" aria-labelledby="artist-label"><g:link controller="artist" action="show" id="${albumInstance?.artist?.id}">${albumInstance?.artist?.encodeAsHTML()}</g:link></span>
+						<span class="property-value" aria-labelledby="artist-label"><g:link controller="artist" action="show" id="${albumInstance?.artist?.id}">${albumInstance?.artist?.navn}</g:link></span>
 					
 				</li>
 				</g:if>
@@ -72,7 +69,7 @@
 			
 				<g:if test="${albumInstance?.tilgjengeligINorge}">
 				<li class="fieldcontain">
-					<span id="tilgjengeligINorge-label" class="property-label"><g:message code="album.tilgjengeligINorge.label" default="Tilgjengelig IN orge" /></span>
+					<span id="tilgjengeligINorge-label" class="property-label">Tilgjengelig i Norge</span>
 					
 						<span class="property-value" aria-labelledby="tilgjengeligINorge-label"><g:formatBoolean boolean="${albumInstance?.tilgjengeligINorge}" /></span>
 					

@@ -10,14 +10,14 @@
 	<g:textField name="spotifyURI" value="${artistInstance?.spotifyURI}"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: artistInstance, field: 'albumer', 'error')} ">
-	<label for="albumer">
-		<g:message code="artist.albumer.label" default="Albumer" />
+<div class="fieldcontain ${hasErrors(bean: artistInstance, field: 'album', 'error')} ">
+	<label for="album">
+		<g:message code="artist.album.label" default="Album" />
 		
 	</label>
 	
 <ul class="one-to-many">
-<g:each in="${artistInstance?.albumer?}" var="a">
+<g:each in="${artistInstance?.album?}" var="a">
     <li><g:link controller="album" action="show" id="${a.id}">${a?.encodeAsHTML()}</g:link></li>
 </g:each>
 <li class="add">
