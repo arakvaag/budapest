@@ -13,7 +13,7 @@ class SpotifyService {
 		List<Album> albumer = []
 		
 		spotifyAlbum.each { sa ->
-			if(!Album.findBySpotifyURI(sa.getHref())){
+			if(sa.erTilgjengeligINorge() && !Album.findBySpotifyURI(sa.getHref())){
 				def nyttAlbum = mappAlbum(sa)
 				nyttAlbum.artist = mappArtist(sa.artists[0])
 				albumer.add(nyttAlbum)
@@ -27,7 +27,6 @@ class SpotifyService {
 		nyttAlbum.navn = sa.getName()
 		nyttAlbum.spotifyURI = sa.getHref()
 		nyttAlbum.aar = sa.getReleased()
-		nyttAlbum.tilgjengeligINorge = sa.erTilgjengeligINorge()
 		
 		nyttAlbum.artist = mappArtist(sa.getArtists()[0])
 		return nyttAlbum
