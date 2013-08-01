@@ -7,6 +7,7 @@ import org.junit.*
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(SpotifyService)
+@Mock([Album, Artist])
 class SpotifyServiceTests {
 
 	def spotifyService

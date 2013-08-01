@@ -9,21 +9,16 @@ class SpotifyService {
 	def spotifyAPI 
 	
     List<Album> sokEtterAlbum(String artistNavn, String albumNavn) {
-		println "søker"
 		def spotifyAlbum = spotifyAPI.soekEtterAlbum(artistNavn, albumNavn, 1)
 		List<Album> albumer = []
 		
 		spotifyAlbum.each { sa ->
-			def nyttAlbum = mappAlbum(sa)
-//			if(albumer.find { a->
-//				a.artist.spotifyURI == sa.artists[0].getHref() 
-//			})
-				
-			nyttAlbum.artist = mappArtist(sa.artists[0])
-		
-			albumer.add(nyttAlbum)
-		}
-		
+			if(!Album.findBySpotifyURI(sa.getHref())){
+				def nyttAlbum = mappAlbum(sa)
+				nyttAlbum.artist = mappArtist(sa.artists[0])
+				albumer.add(nyttAlbum)
+			}
+		}	
 		albumer
     }
 
@@ -39,9 +34,12 @@ class SpotifyService {
 	}
 	
 	private Artist mappArtist(SpotifyArtist spotifyArtist){
-		def nyArtist = new Artist()
-		nyArtist.navn = spotifyArtist.getName()
-		nyArtist.spotifyURI = spotifyArtist.getHref()
+		def nyArtist = Artist.findBySpotifyURI(spotifyArtist.getHref())
+		if(!nyArtist){
+			nyArtist = new Artist()
+			nyArtist.navn = spotifyArtist.getName()
+			nyArtist.spotifyURI = spotifyArtist.getHref()
+		}
 		return nyArtist
 	}
 }
