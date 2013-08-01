@@ -26,30 +26,24 @@
 				<g:if test="${artistInstance?.navn}">
 				<li class="fieldcontain">
 					<span id="navn-label" class="property-label"><g:message code="artist.navn.label" default="Navn" /></span>
-					
-						<span class="property-value" aria-labelledby="navn-label"><g:fieldValue bean="${artistInstance}" field="navn"/></span>
-					
+					<span class="property-value" aria-labelledby="navn-label"><g:fieldValue bean="${artistInstance}" field="navn"/></span>
 				</li>
 				</g:if>
 			
 				<g:if test="${artistInstance?.album}">
-				<li class="fieldcontain">
-					<span id="album-label" class="property-label"><g:message code="artist.album.label" default="Album" /></span>
-					
+					<li class="fieldcontain">
+						<span id="album-label" class="property-label"><g:message code="artist.album.label" default="Album" /></span>
 						<g:each in="${artistInstance.album}" var="a">
-						<span class="property-value" aria-labelledby="album-label"><g:link controller="album" action="show" id="${a.id}">${a?.navn}</g:link></span>
-						</g:each>
-					
-				</li>
+							<span class="property-value" aria-labelledby="album-label"><g:link controller="album" action="show" id="${a.id}">${a?.navn}</g:link></span>
+						</g:each>					
+					</li>
 				</g:if>
 				
 				<g:if test="${artistInstance?.spotifyURI}">
-				<li class="fieldcontain">
-					<span id="spotifyURI-label" class="property-label"><g:message code="artist.spotifyURI.label" default="Spotify URI" /></span>
-					
-						<span class="property-value" aria-labelledby="spotifyURI-label"><g:fieldValue bean="${artistInstance}" field="spotifyURI"/></span>
-					
-				</li>
+					<li class="fieldcontain">
+						<span id="spotifyURI-label" class="property-label"><g:message code="artist.spotifyURI.label" default="Spotify URI" /></span>
+						<span class="property-value" aria-labelledby="spotifyURI-label"><g:link url="${artistInstance.spotifyURI}"><g:fieldValue bean="${artistInstance}" field="spotifyURI"/></g:link></span>
+					</li>
 				</g:if>
 			
 			</ol>

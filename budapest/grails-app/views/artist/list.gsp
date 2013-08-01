@@ -23,21 +23,15 @@
 			<table>
 				<thead>
 					<tr>
-					
-						<g:sortableColumn property="spotifyURI" title="${message(code: 'artist.spotifyURI.label', default: 'Spotify URI')}" />
-					
 						<g:sortableColumn property="navn" title="${message(code: 'artist.navn.label', default: 'Navn')}" />
-					
+						<g:sortableColumn property="spotifyURI" title="${message(code: 'artist.spotifyURI.label', default: 'Spotify URI')}" />
 					</tr>
 				</thead>
 				<tbody>
 				<g:each in="${artistInstanceList}" status="i" var="artistInstance">
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
-					
-						<td><g:link action="show" id="${artistInstance.id}">${fieldValue(bean: artistInstance, field: "spotifyURI")}</g:link></td>
-					
 						<td>${fieldValue(bean: artistInstance, field: "navn")}</td>
-					
+						<td><g:link action="show" id="${artistInstance.id}">${fieldValue(bean: artistInstance, field: "spotifyURI")}</g:link></td>
 					</tr>
 				</g:each>
 				</tbody>

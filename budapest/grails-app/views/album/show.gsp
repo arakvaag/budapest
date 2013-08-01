@@ -22,61 +22,46 @@
 			<div class="message" role="status">${flash.message}</div>
 			</g:if>
 			<ol class="property-list album">
-				<g:if test="${albumInstance?.aar}">
-				<li class="fieldcontain">
-					<span id="aar-label" class="property-label">År</span>
-						<span class="property-value" aria-labelledby="aar-label">${albumInstance.aar}</span>
-				</li>
+			
+				<g:if test="${albumInstance?.navn}">
+					<li class="fieldcontain">
+						<span id="navn-label" class="property-label"><g:message code="album.navn.label" default="Navn" /></span>
+						<span class="property-value" aria-labelledby="navn-label"><g:fieldValue bean="${albumInstance}" field="navn"/></span>
+					</li>
 				</g:if>
 			
 				<g:if test="${albumInstance?.artist}">
-				<li class="fieldcontain">
-					<span id="artist-label" class="property-label"><g:message code="album.artist.label" default="Artist" /></span>
-					
+					<li class="fieldcontain">
+						<span id="artist-label" class="property-label"><g:message code="album.artist.label" default="Artist" /></span>					
 						<span class="property-value" aria-labelledby="artist-label"><g:link controller="artist" action="show" id="${albumInstance?.artist?.id}">${albumInstance?.artist?.navn}</g:link></span>
-					
-				</li>
+					</li>
 				</g:if>
 			
-				<g:if test="${albumInstance?.navn}">
-				<li class="fieldcontain">
-					<span id="navn-label" class="property-label"><g:message code="album.navn.label" default="Navn" /></span>
-					
-						<span class="property-value" aria-labelledby="navn-label"><g:fieldValue bean="${albumInstance}" field="navn"/></span>
-					
-				</li>
+				<g:if test="${albumInstance?.aar}">
+					<li class="fieldcontain">
+						<span id="aar-label" class="property-label">År</span>
+						<span class="property-value" aria-labelledby="aar-label">${albumInstance.aar}</span>
+					</li>
 				</g:if>
 			
 				<g:if test="${albumInstance?.sporene}">
-				<li class="fieldcontain">
-					<span id="sporene-label" class="property-label"><g:message code="album.sporene.label" default="Sporene" /></span>
-					
-						<g:each in="${albumInstance.sporene}" var="s">
-						<span class="property-value" aria-labelledby="sporene-label"><g:link controller="spor" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></span>
-						</g:each>
-					
-				</li>
+					<li class="fieldcontain">
+						<span id="sporene-label" class="property-label"><g:message code="album.sporene.label" default="Sporene" /></span>
+							<g:each in="${albumInstance.sporene}" var="s">
+								<span class="property-value" aria-labelledby="sporene-label"><g:link controller="spor" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></span>
+							</g:each>
+					</li>
 				</g:if>
 			
 				<g:if test="${albumInstance?.spotifyURI}">
-				<li class="fieldcontain">
-					<span id="spotifyURI-label" class="property-label"><g:message code="album.spotifyURI.label" default="Spotify URI" /></span>
-					
-						<span class="property-value" aria-labelledby="spotifyURI-label"><g:fieldValue bean="${albumInstance}" field="spotifyURI"/></span>
-					
-				</li>
-				</g:if>
-			
-				<g:if test="${albumInstance?.tilgjengeligINorge}">
-				<li class="fieldcontain">
-					<span id="tilgjengeligINorge-label" class="property-label">Tilgjengelig i Norge</span>
-					
-						<span class="property-value" aria-labelledby="tilgjengeligINorge-label"><g:formatBoolean boolean="${albumInstance?.tilgjengeligINorge}" /></span>
-					
-				</li>
+					<li class="fieldcontain">
+						<span id="spotifyURI-label" class="property-label"><g:message code="album.spotifyURI.label" default="Spotify URI" /></span>
+						<span class="property-value" aria-labelledby="spotifyURI-label"><g:link url="${albumInstance.spotifyURI}"><g:fieldValue bean="${albumInstance}" field="spotifyURI"/></g:link></span>
+					</li>
 				</g:if>
 			
 			</ol>
+			
 			<g:form>
 				<fieldset class="buttons">
 					<g:hiddenField name="id" value="${albumInstance?.id}" />

@@ -51,11 +51,3 @@
 	<g:textField name="spotifyURI" value="${albumInstance?.spotifyURI}"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: albumInstance, field: 'tilgjengeligINorge', 'error')} ">
-	<label for="tilgjengeligINorge">
-		<g:message code="album.tilgjengeligINorge.label" default="Tilgjengelig IN orge" />
-		
-	</label>
-	<g:checkBox name="tilgjengeligINorge" value="${albumInstance?.tilgjengeligINorge}" />
-</div>
-

@@ -13,8 +13,7 @@ class BootStrap {
 		sporene.add(new Spor(navn: "Spor 4", nummer: 4).save())
 		sporene.add(new Spor(navn: "Spor 5", nummer: 5).save())
 		sporene.add(new Spor(navn: "Spor 6", nummer: 6).save())
-    	Album album = new Album(navn: "21", artist: artist, aar: 2011, tilgjengeligINorge: true, 
-			spotifyURI: "spotify:album:7n3QJc7TBOxXtlYh4Ssll8", sporene: sporene).save()
+    	Album album = new Album(navn: "21", artist: artist, aar: 2011, spotifyURI: "spotify:album:7n3QJc7TBOxXtlYh4Ssll8", sporene: sporene).save()
 	}
     def destroy = {
     }

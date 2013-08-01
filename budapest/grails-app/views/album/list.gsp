@@ -12,7 +12,7 @@
 		<div class="nav" role="navigation">
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
-				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
+				<li><g:link class="create" action="create">Nytt album</g:link></li>
 			</ul>
 		</div>
 		<div id="list-album" class="content scaffold-list" role="main">
@@ -27,17 +27,15 @@
 						<g:sortableColumn property="navn" title="Album" />
 						<g:sortableColumn property="aar" title="År" />
 						<g:sortableColumn property="spotifyURI" title="Spotify URI" />
-						<g:sortableColumn property="tilgjengeligINorge" title="Tilgjengelig i Norge" />
 					</tr>
 				</thead>
 				<tbody>
 				<g:each in="${albumInstanceList}" status="i" var="albumInstance">
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
-						<td>${fieldValue(bean: albumInstance, field: "artist.navn")}</td>
+						<td><g:link controller="artist" action="show" id="${albumInstance.artist.id}">${fieldValue(bean: albumInstance, field: "artist.navn")}</g:link></td>
 						<td><g:link action="show" id="${albumInstance.id}">${fieldValue(bean: albumInstance, field: "navn")}</g:link></td>
 						<td>${albumInstance.aar}</td>
 						<td><g:link url="${albumInstance.spotifyURI}">${fieldValue(bean: albumInstance, field: "spotifyURI")}</g:link></td>
-						<td><g:formatBoolean boolean="${albumInstance.tilgjengeligINorge}" /></td>					
 					</tr>
 				</g:each>
 				</tbody>
