@@ -13,20 +13,21 @@
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
 				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="search" action="search">Søk</g:link></li>
+				<li><g:link class="list" action="search">Søk</g:link></li>
 			</ul>
 		</div>
 		<div id="show-album" class="content scaffold-show" role="main">
 			<h1>Søk</h1>
+			
 			<g:if test="${flash.message}">
 				<div class="message" role="status">${flash.message}</div>
 			</g:if>
-			<g:form action="search" method="get" >
 			
-			 <label for="artist">Artist</label>
-			 <g:textField name="artist"/>
-			 <label for="album">Album</label>
-			 <g:textField name="album"/>
+			<g:form action="search" method="get" >			
+				<label for="artist">Artist</label>
+				<g:textField name="artist"/>
+				<label for="album">Album</label>
+				<g:textField name="album"/>
 				<g:submitButton value="Søk" name="search" />
 			</g:form>
 			

@@ -103,6 +103,8 @@ class AlbumController {
     }
 	
 	def search() {
+		def a = params
+		def b = params.search
 		if(params.search && (params.artist || params.album)){
 			
 			def liste = spotifyService.sokEtterAlbum(params.artist, params.album)
@@ -111,7 +113,7 @@ class AlbumController {
 			}
 			[albumliste: liste]
 		} else if(params.search){
-			flash.message = "Må jo skrive inn no da..."
+			flash.message = "MÃ¥ jo skrive inn no da..."
 		}
 	}
 }
