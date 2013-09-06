@@ -6,6 +6,7 @@
 		<meta name="layout" content="main">
 		<g:set var="entityName" value="${message(code: 'album.label', default: 'Album')}" />
 		<title><g:message code="default.show.label" args="[entityName]" /></title>
+		<g:javascript library="jquery" />
 	</head>
 	<body>
 		<a href="#show-album" class="skip" tabindex="-1"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
@@ -34,21 +35,19 @@
 			<g:if test="${albumliste}">
 				<ul>
 					<g:each in="${albumliste}" var="album">
-						<li>${album.artist.navn} - ${album.navn} - <g:remoteLink action="create" method="get" update="res">Test 1</g:remoteLink> </li>
-						
+					<g:form action="add">
+						<li>
+							${album.artist.navn} - ${album.navn}
+    						<input type="hidden" name="spotifyURI" value="${album.spotifyURI}" />
+    						<g:submitToRemote id="${album.spotifyURI}" update="melding" value="Legg til album" action="add" 
+    							onSuccess="document.getElementById('${album.spotifyURI}').style.visibility = 'hidden'"/>
+    					</li>
+					</g:form >
 					</g:each>
 				</ul>
+				<div id="melding">Ingen album lagt til</div>
 			</g:if>
 			
-			<div id="res"></div>
-			
-			<g:form>
-				<fieldset class="buttons">
-					<g:hiddenField name="id" value="${albumInstance?.id}" />
-					<g:link class="edit" action="edit" id="${albumInstance?.id}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
-					<g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" />
-				</fieldset>
-			</g:form>
 		</div>
 	</body>
 </html>

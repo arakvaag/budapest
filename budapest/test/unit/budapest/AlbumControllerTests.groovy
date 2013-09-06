@@ -1,5 +1,7 @@
 package budapest
 
+import grails.test.mixin.*
+
 @TestFor(AlbumController)
 @Mock(Album)
 class AlbumControllerTests {

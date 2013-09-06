@@ -6,7 +6,7 @@ class AlbumController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
-	def spotifyService
+	SpotifyService spotifyService
 	
     def index() {
         redirect(action: "list", params: params)
@@ -20,6 +20,14 @@ class AlbumController {
     def create() {
         [albumInstance: new Album(params)]
     }
+	
+	def add() {
+		def uri = params.spotifyURI
+		def album = spotifyService.hentAlbum(uri)
+		album.getArtist().save()
+		album.save()
+		render "Album " + album.navn + " lagt til"
+	}
 
     def save() {
         def albumInstance = new Album(params)

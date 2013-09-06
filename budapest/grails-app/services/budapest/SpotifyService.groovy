@@ -15,12 +15,18 @@ class SpotifyService {
 		spotifyAlbum.each { sa ->
 			if(sa.erTilgjengeligINorge() && !Album.findBySpotifyURI(sa.getHref())){
 				def nyttAlbum = mappAlbum(sa)
-				nyttAlbum.artist = mappArtist(sa.artists[0])
 				albumer.add(nyttAlbum)
 			}
 		}	
 		albumer
     }
+	
+	Album hentAlbum(String spotifyURI) {	
+		Collection<SpotifyAlbum> albumColl = spotifyAPI.hentAlbumPaaSpotifyURIer([spotifyURI], 3)
+		def spotAlbum = albumColl.iterator().next()
+		def album = mappAlbum(spotAlbum);
+		return album
+	}
 
 	private Album mappAlbum(SpotifyAlbum sa) {
 		def nyttAlbum = new Album()
@@ -28,17 +34,23 @@ class SpotifyService {
 		nyttAlbum.spotifyURI = sa.getHref()
 		nyttAlbum.aar = sa.getReleased()
 		
-		nyttAlbum.artist = mappArtist(sa.getArtists()[0])
+		
+		nyttAlbum.artist = mappArtist(sa)
+		
 		return nyttAlbum
 	}
 	
-	private Artist mappArtist(SpotifyArtist spotifyArtist){
-		def nyArtist = Artist.findBySpotifyURI(spotifyArtist.getHref())
-		if(!nyArtist){
-			nyArtist = new Artist()
-			nyArtist.navn = spotifyArtist.getName()
-			nyArtist.spotifyURI = spotifyArtist.getHref()
-		}
-		return nyArtist
+	private Artist mappArtist(SpotifyAlbum spotifyAlbum) {
+		def artistURI = spotifyAlbum.getArtistid()
+		artistURI = artistURI ?: spotifyAlbum.getArtists()?.iterator()?.next()?.getHref()
+		
+		def nyArtist = Artist.findBySpotifyURI(artistURI);
+		if (nyArtist)
+			return nyArtist;		
+		
+		def artistNavn = spotifyAlbum.getArtist();
+		artistNavn = artistNavn ?: spotifyAlbum.getArtists()?.iterator()?.next()?.getName()
+		return new Artist(navn: artistNavn, spotifyURI: artistURI) 
 	}
+
 }
