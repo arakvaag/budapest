@@ -204,6 +204,23 @@ img {
 
 /* CREATE/EDIT FORMS AND SHOW PAGES */
 
+
+
+.search {
+	margin: 0 1em 0;
+}
+
+.search h1 {
+	border-bottom: 1px solid #CCCCCC;
+	margin: 0.8em 0 0.5em;
+	padding: 0 0.25em;
+}
+
+.search li {
+	list-style-type: none;
+	margin: 0.5em 0;
+}
+
 fieldset,
 .property-list {
 	margin: 0.6em 1.25em 0 1.25em;

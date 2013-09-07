@@ -27,7 +27,7 @@
 						<th><g:message code="album.artist.label" default="Artist" /></th>
 						<g:sortableColumn property="navn" title="Album" />
 						<g:sortableColumn property="aar" title="År" />
-						<g:sortableColumn property="spotifyURI" title="Spotify URI" />
+						<g:sortableColumn property="spotifyURI" title=" " />
 					</tr>
 				</thead>
 				<tbody>
@@ -36,7 +36,7 @@
 						<td><g:link controller="artist" action="show" id="${albumInstance.artist.id}">${fieldValue(bean: albumInstance, field: "artist.navn")}</g:link></td>
 						<td><g:link action="show" id="${albumInstance.id}">${fieldValue(bean: albumInstance, field: "navn")}</g:link></td>
 						<td>${albumInstance.aar}</td>
-						<td><g:link url="${albumInstance.spotifyURI}">${fieldValue(bean: albumInstance, field: "spotifyURI")}</g:link></td>
+						<td><g:if test="${albumInstance.spotifyURI}"><g:link url="${albumInstance.spotifyURI}">Åpne i Spotify</g:link></g:if></td>
 					</tr>
 				</g:each>
 				</tbody>

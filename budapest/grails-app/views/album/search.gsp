@@ -17,35 +17,33 @@
 				<li><g:link class="list" action="search">Søk</g:link></li>
 			</ul>
 		</div>
-		<div id="show-album" class="content scaffold-show" role="main">
+		<div class="search" role="main">
 			<h1>Søk</h1>
 			
 			<g:if test="${flash.message}">
-				<div class="message" role="status">${flash.message}</div>
+				<div class="message" on role="status">${flash.message}</div>
 			</g:if>
+			<div id="messagebox" onload="this.style.display='none'"></div>
 			
 			<g:form action="search" method="get" >			
-				<label for="artist">Artist</label>
-				<g:textField name="artist"/>
-				<label for="album">Album</label>
-				<g:textField name="album"/>
+				<label for="artist">Artist</label><g:textField name="artist"/>&nbsp;&nbsp;&nbsp;
+				<label for="album">Album</label><g:textField name="album"/>&nbsp;&nbsp;&nbsp;
 				<g:submitButton value="Søk" name="search" />
 			</g:form>
 			
 			<g:if test="${albumliste}">
 				<ul>
 					<g:each in="${albumliste}" var="album">
-					<g:form action="add">
-						<li>
-							${album.artist.navn} - ${album.navn}
-    						<input type="hidden" name="spotifyURI" value="${album.spotifyURI}" />
-    						<g:submitToRemote id="${album.spotifyURI}" update="melding" value="Legg til album" action="add" 
-    							onSuccess="document.getElementById('${album.spotifyURI}').style.visibility = 'hidden'"/>
-    					</li>
+					<g:form>
+						<li><g:submitToRemote id="${album.spotifyURI}" update="messagebox" value="+" action="add" 
+    							onSuccess="document.getElementById('${album.spotifyURI}').disabled = 'true'; 
+    										document.getElementById('messagebox').style.visibility = 'visible';
+    										document.getElementById('messagebox').classList.add('message')"/>&nbsp;&nbsp;
+    						${album.artist.navn} - ${album.navn}
+    						<input type="hidden" name="spotifyURI" value="${album.spotifyURI}" /></li>
 					</g:form >
 					</g:each>
 				</ul>
-				<div id="melding">Ingen album lagt til</div>
 			</g:if>
 			
 		</div>

@@ -23,10 +23,10 @@ class AlbumController {
 	
 	def add() {
 		def uri = params.spotifyURI
-		def album = spotifyService.hentAlbum(uri)
-		album.getArtist().save()
+		Album album = spotifyService.hentAlbum(uri)
+		album.artist.save()
 		album.save()
-		render "Album " + album.navn + " lagt til"
+		render "Albumet \"" + album.artist.navn + " - " + album.navn + "\" har blitt lagt til"
 	}
 
     def save() {
