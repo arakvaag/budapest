@@ -13,8 +13,8 @@
 		<div class="nav" role="navigation">
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
-				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="list" action="search">Søk</g:link></li>
+				<li><g:link class="create" action="create">Opprett album</g:link></li>
+				<li><g:link class="create" url="[action:'create',controller:'artist']">Opprett artist</g:link></li>
 			</ul>
 		</div>
 		<div class="search" role="main">
@@ -36,7 +36,7 @@
 					<g:each in="${albumliste}" var="album">
 					<g:form>
 						<li><g:submitToRemote id="${album.spotifyURI}" update="messagebox" value="+" action="add" 
-    							onSuccess="document.getElementById('${album.spotifyURI}').disabled = 'true'; 
+    							onSuccess="document.getElementById('${album.spotifyURI}').style.visibility = 'hidden'; 
     										document.getElementById('messagebox').style.visibility = 'visible';
     										document.getElementById('messagebox').classList.add('message')"/>&nbsp;&nbsp;
     						${album.artist.navn} - ${album.navn}

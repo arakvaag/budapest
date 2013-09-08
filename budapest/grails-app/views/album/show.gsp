@@ -12,9 +12,9 @@
 		<div class="nav" role="navigation">
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
-				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="create" action="create">Nytt album</g:link></li>
-				<li><g:link class="list" action="search">Søk</g:link></li>
+				<li><g:link class="list" action="search">Søk album</g:link></li>
+				<li><g:link class="create" action="create">Opprett album</g:link></li>
+				<li><g:link class="create" url="[action:'create',controller:'artist']">Opprett artist</g:link></li>
 			</ul>
 		</div>
 		<div id="show-album" class="content scaffold-show" role="main">
@@ -42,15 +42,6 @@
 					<li class="fieldcontain">
 						<span id="aar-label" class="property-label">År</span>
 						<span class="property-value" aria-labelledby="aar-label">${albumInstance.aar}</span>
-					</li>
-				</g:if>
-			
-				<g:if test="${albumInstance?.sporene}">
-					<li class="fieldcontain">
-						<span id="sporene-label" class="property-label"><g:message code="album.sporene.label" default="Sporene" /></span>
-							<g:each in="${albumInstance.sporene}" var="s">
-								<span class="property-value" aria-labelledby="sporene-label"><g:link controller="spor" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></span>
-							</g:each>
 					</li>
 				</g:if>
 			

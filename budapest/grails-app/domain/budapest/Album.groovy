@@ -7,9 +7,13 @@ class Album {
 	Integer aar
 	Artist artist
 	
-	static hasMany = [sporene:Spor]
-	
     static constraints = {
     	aar nullable:true
 	}
+	
+	@Override
+	public String toString() {
+		navn
+	}
+
 }

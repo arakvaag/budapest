@@ -10,4 +10,10 @@ class Artist {
     static constraints = {
 		spotifyURI unique:true,  nullable: true 
     }
+
+	@Override
+	public String toString() {
+		navn
+	}
+		
 }

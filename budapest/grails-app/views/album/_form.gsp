@@ -1,7 +1,6 @@
 <%@ page import="budapest.Album" %>
 
 
-
 <div class="fieldcontain ${hasErrors(bean: albumInstance, field: 'aar', 'error')} ">
 	<label for="aar">
 		<g:message code="album.aar.label" default="Aar" />
@@ -32,21 +31,11 @@
 		
 	</label>
 	
-<ul class="one-to-many">
-<g:each in="${albumInstance?.sporene?}" var="s">
-    <li><g:link controller="spor" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></li>
-</g:each>
-<li class="add">
-<g:link controller="spor" action="create" params="['album.id': albumInstance?.id]">${message(code: 'default.add.label', args: [message(code: 'spor.label', default: 'Spor')])}</g:link>
-</li>
-</ul>
-
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: albumInstance, field: 'spotifyURI', 'error')} ">
 	<label for="spotifyURI">
 		<g:message code="album.spotifyURI.label" default="Spotify URI" />
-		
 	</label>
 	<g:textField name="spotifyURI" value="${albumInstance?.spotifyURI}"/>
 </div>

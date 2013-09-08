@@ -11,9 +11,9 @@
 		<div class="nav" role="navigation">
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
-				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="list" action="search">Søk</g:link></li>
+				<li><g:link class="list" action="search">Søk album</g:link></li>
+				<li><g:link class="create" action="create">Opprett album</g:link></li>
+				<li><g:link class="create" url="[action:'create',controller:'artist']">Opprett artist</g:link></li>
 			</ul>
 		</div>
 		<div id="edit-album" class="content scaffold-edit" role="main">

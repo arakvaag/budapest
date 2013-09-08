@@ -212,8 +212,16 @@ img {
 
 .search h1 {
 	border-bottom: 1px solid #CCCCCC;
-	margin: 0.8em 0 0.5em;
+	margin: 0.8em 0 1em;
 	padding: 0 0.25em;
+}
+
+.search form {
+	margin: 0 0 0 1em;
+}
+
+.search ul {
+	margin: 1.5em 0 1em 0;
 }
 
 .search li {
