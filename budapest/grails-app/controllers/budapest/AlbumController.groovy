@@ -47,6 +47,8 @@ class AlbumController {
             redirect(action: "list")
             return
         }
+		
+		albumInstance.urlCoverArt = albumInstance.urlCoverArt ?: spotifyService.hentUrlCoverArt(albumInstance)
 
         [albumInstance: albumInstance]
     }

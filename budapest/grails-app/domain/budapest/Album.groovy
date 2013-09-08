@@ -6,9 +6,11 @@ class Album {
 	String spotifyURI
 	Integer aar
 	Artist artist
+	String urlCoverArt
 	
     static constraints = {
     	aar nullable:true
+		urlCoverArt nullable:true
 	}
 	
 	@Override

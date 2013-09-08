@@ -6,7 +6,7 @@ import org.rakvag.spotifyapi.entity.SpotifyArtist;
 
 class SpotifyService {
 
-	def spotifyAPI 
+	SpotifyAPI spotifyAPI 
 	
     List<Album> sokEtterAlbum(String artistNavn, String albumNavn) {
 		def spotifyAlbum = spotifyAPI.soekEtterAlbum(artistNavn, albumNavn, 1)
@@ -28,6 +28,10 @@ class SpotifyService {
 		return album
 	}
 
+	String hentUrlCoverArt(Album album) {
+		spotifyAPI.hentBildelink(album.spotifyURI)
+	}
+	
 	private Album mappAlbum(SpotifyAlbum sa) {
 		def nyttAlbum = new Album()
 		nyttAlbum.navn = sa.getName()

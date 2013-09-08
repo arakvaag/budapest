@@ -22,6 +22,11 @@
 			<g:if test="${flash.message}">
 			<div class="message" role="status">${flash.message}</div>
 			</g:if>
+			
+			<g:if test="${albumInstance?.urlCoverArt}">
+				<img class="coverart" src="${albumInstance?.urlCoverArt}" alt="${albumInstance?.navn}" >
+			</g:if>		
+			
 			<ol class="property-list album">
 			
 				<g:if test="${albumInstance?.navn}">
