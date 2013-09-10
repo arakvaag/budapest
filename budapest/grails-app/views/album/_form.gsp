@@ -25,14 +25,6 @@
 	<g:textField name="navn" value="${albumInstance?.navn}"/>
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: albumInstance, field: 'sporene', 'error')} ">
-	<label for="sporene">
-		<g:message code="album.sporene.label" default="Sporene" />
-		
-	</label>
-	
-</div>
-
 <div class="fieldcontain ${hasErrors(bean: albumInstance, field: 'spotifyURI', 'error')} ">
 	<label for="spotifyURI">
 		<g:message code="album.spotifyURI.label" default="Spotify URI" />

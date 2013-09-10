@@ -113,8 +113,6 @@ class AlbumController {
     }
 	
 	def search() {
-		def a = params
-		def b = params.search
 		if(params.search && (params.artist || params.album)){
 			
 			def liste = spotifyService.sokEtterAlbum(params.artist, params.album)
