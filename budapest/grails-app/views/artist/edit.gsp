@@ -12,9 +12,9 @@
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
 				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="create" action="create">Opprett artist</g:link></li>
+				<li><g:link class="create" action="create">Ny artist</g:link></li>
 				<li><g:link class="create" url="[action:'search',controller:'album']">Søk album</g:link></li>
-				<li><g:link class="create" url="[action:'create',controller:'album']">Opprett album</g:link></li>
+				<li><g:link class="create" url="[action:'create',controller:'album']">Nytt album</g:link></li>
 			</ul>
 		</div>
 		<div id="edit-artist" class="content scaffold-edit" role="main">

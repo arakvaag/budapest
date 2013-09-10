@@ -12,7 +12,7 @@
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
 				<li><g:link class="list" action="search">Søk album</g:link></li>
-				<li><g:link class="create" url="[action:'create',controller:'artist']">Opprett artist</g:link></li>
+				<li><g:link class="create" url="[action:'create',controller:'artist']">Ny artist</g:link></li>
 			</ul>
 		</div>
 		<div id="create-album" class="content scaffold-create" role="main">
