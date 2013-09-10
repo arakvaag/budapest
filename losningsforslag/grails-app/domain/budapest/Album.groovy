@@ -11,4 +11,9 @@ class Album {
 		aar nullable:true
 	}
 	
+	@Override
+	public String toString() {
+		navn
+	}
+
 }

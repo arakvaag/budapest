@@ -3,10 +3,7 @@
 
 
 <div class="fieldcontain ${hasErrors(bean: albumInstance, field: 'aar', 'error')} ">
-	<label for="aar">
-		<g:message code="album.aar.label" default="Aar" />
-		
-	</label>
+	<label for="aar">År</label>
 	<g:field name="aar" type="number" value="${albumInstance.aar}"/>
 </div>
 

@@ -17,7 +17,7 @@
 			</ul>
 		</div>
 		<div id="show-artist" class="content scaffold-show" role="main">
-			<h1><g:message code="default.show.label" args="[entityName]" /></h1>
+			<h1>Vis artist</h1>
 			<g:if test="${flash.message}">
 			<div class="message" role="status">${flash.message}</div>
 			</g:if>
@@ -26,10 +26,16 @@
 				<g:if test="${artistInstance?.navn}">
 				<li class="fieldcontain">
 					<span id="navn-label" class="property-label"><g:message code="artist.navn.label" default="Navn" /></span>
-					
-						<span class="property-value" aria-labelledby="navn-label"><g:fieldValue bean="${artistInstance}" field="navn"/></span>
-					
+					<span class="property-value" aria-labelledby="navn-label"><g:fieldValue bean="${artistInstance}" field="navn"/></span>
 				</li>
+				</g:if>
+				<g:if test="${artistInstance?.album}">
+					<li class="fieldcontain">
+						<span id="album-label" class="property-label"><g:message code="artist.album.label" default="Album" /></span>
+						<g:each in="${artistInstance.album}" var="a">
+							<span class="property-value" aria-labelledby="album-label"><g:link controller="album" action="show" id="${a.id}">${a?.navn}</g:link></span>
+						</g:each>					
+					</li>
 				</g:if>
 			
 			</ol>

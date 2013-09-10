@@ -12,12 +12,12 @@
 		<div class="nav" role="navigation">
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
-				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
+				<li><g:link class="create" action="create">Nytt album</g:link></li>
+				<li><g:link class="create" url="[action:'create',controller:'artist']">Ny artist</g:link></li>
 			</ul>
 		</div>
 		<div id="show-album" class="content scaffold-show" role="main">
-			<h1><g:message code="default.show.label" args="[entityName]" /></h1>
+			<h1>Vis album</h1>
 			<g:if test="${flash.message}">
 			<div class="message" role="status">${flash.message}</div>
 			</g:if>
@@ -25,9 +25,9 @@
 			
 				<g:if test="${albumInstance?.aar}">
 				<li class="fieldcontain">
-					<span id="aar-label" class="property-label"><g:message code="album.aar.label" default="Aar" /></span>
+					<span id="aar-label" class="property-label">År</span>
 					
-						<span class="property-value" aria-labelledby="aar-label"><g:fieldValue bean="${albumInstance}" field="aar"/></span>
+						<span class="property-value" aria-labelledby="aar-label">${albumInstance.aar}</span>
 					
 				</li>
 				</g:if>
