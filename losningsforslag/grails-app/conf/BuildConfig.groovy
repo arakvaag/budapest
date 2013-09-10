@@ -39,7 +39,8 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
+		// specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
+    	compile group:'com.google.code.gson', name:'gson', version:'2.2.2'
 
         // runtime 'mysql:mysql-connector-java:5.1.22'
     }

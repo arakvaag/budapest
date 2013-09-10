@@ -6,6 +6,8 @@ class AlbumController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
+	SpotifyService spotifyService
+	
     def index() {
         redirect(action: "list", params: params)
     }
@@ -99,4 +101,18 @@ class AlbumController {
             redirect(action: "show", id: id)
         }
     }
+	
+	def search() {
+		if(params.search && (params.artist || params.album)){
+			
+			def liste = spotifyService.sokEtterAlbum(params.artist, params.album)
+			if(liste.size() < 1) {
+				flash.message = "Fant ikke no gitt"
+			}
+			[albumliste: liste]
+		} else if(params.search){
+			flash.message = "Må jo skrive inn no da..."
+		}
+	}
+
 }
