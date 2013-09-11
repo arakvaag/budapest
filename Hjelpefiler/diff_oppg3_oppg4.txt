@@ -1,0 +1,236 @@
+diff --git a/budapest/grails-app/domain/budapest/Album.groovy b/budapest/grails-app/domain/budapest/Album.groovy
+index 155ccf2..ba55ba9 100755
+--- a/budapest/grails-app/domain/budapest/Album.groovy
++++ b/budapest/grails-app/domain/budapest/Album.groovy
+@@ -10,6 +10,7 @@ class Album {
+ 	
+     static constraints = {
+     	aar nullable:true
++		spotifyURI unique:true,  nullable: true
+ 		urlCoverArt nullable:true
+ 	}
+ 	
+diff --git a/budapest/grails-app/services/budapest/SpotifyService.groovy b/budapest/grails-app/services/budapest/SpotifyService.groovy
+index a7dc8da..823a040 100644
+--- a/budapest/grails-app/services/budapest/SpotifyService.groovy
++++ b/budapest/grails-app/services/budapest/SpotifyService.groovy
+@@ -33,12 +33,15 @@ class SpotifyService {
+ 	}
+ 	
+ 	private Album mappAlbum(SpotifyAlbum sa) {
+-		def nyttAlbum = new Album()
++		def nyttAlbum = Album.findBySpotifyURI(sa.getHref())
++		if (nyttAlbum)
++			return nyttAlbum 
++		
++		nyttAlbum = new Album()
+ 		nyttAlbum.navn = sa.getName()
+ 		nyttAlbum.spotifyURI = sa.getHref()
+ 		nyttAlbum.aar = sa.getReleased()
+ 		
+-		
+ 		nyttAlbum.artist = mappArtist(sa)
+ 		
+ 		return nyttAlbum
+diff --git a/budapest/web-app/css/main.css b/budapest/web-app/css/main.css
+index f87aa19..88ad331 100644
+--- a/budapest/web-app/css/main.css
++++ b/budapest/web-app/css/main.css
+@@ -202,9 +202,9 @@ img {
+ 	background-image: url(../images/skin/database_add.png);
+ }
+ 
+-/* CREATE/EDIT FORMS AND SHOW PAGES */
+ 
+ 
++/* CREATE/EDIT FORMS AND SHOW PAGES */
+ 
+ .search {
+ 	margin: 0 1em 0;
+diff --git a/losningsforslag/grails-app/controllers/budapest/AlbumController.groovy b/losningsforslag/grails-app/controllers/budapest/AlbumController.groovy
+index 6758b6a..8de573c 100644
+--- a/losningsforslag/grails-app/controllers/budapest/AlbumController.groovy
++++ b/losningsforslag/grails-app/controllers/budapest/AlbumController.groovy
+@@ -115,4 +115,12 @@ class AlbumController {
+ 		}
+ 	}
+ 
++	def add() {
++		def uri = params.spotifyURI
++		Album album = spotifyService.hentAlbum(uri)
++		album.artist.save()
++		album.save()
++		render "Albumet \"" + album.artist.navn + " - " + album.navn + "\" har blitt lagt til"
++	}
++
+ }
+diff --git a/losningsforslag/grails-app/domain/budapest/Album.groovy b/losningsforslag/grails-app/domain/budapest/Album.groovy
+index 88a7d7a..2b8d90e 100644
+--- a/losningsforslag/grails-app/domain/budapest/Album.groovy
++++ b/losningsforslag/grails-app/domain/budapest/Album.groovy
+@@ -6,9 +6,11 @@ class Album {
+ 	String navn
+ 	Integer aar
+ 	Artist artist
++	String spotifyURI
+ 	
+ 	static constraints = {
+ 		aar nullable:true
++		spotifyURI unique:true,  nullable: true
+ 	}
+ 	
+ 	@Override
+diff --git a/losningsforslag/grails-app/domain/budapest/Artist.groovy b/losningsforslag/grails-app/domain/budapest/Artist.groovy
+index f689a4d..9698323 100644
+--- a/losningsforslag/grails-app/domain/budapest/Artist.groovy
++++ b/losningsforslag/grails-app/domain/budapest/Artist.groovy
+@@ -3,10 +3,12 @@ package budapest
+ class Artist {
+ 
+ 	String navn
++	String spotifyURI
+ 
+ 	static hasMany = [album:Album]
+ 
+     static constraints = {
++		spotifyURI unique:true,  nullable: true 
+     }
+ 	
+ 	@Override
+diff --git a/losningsforslag/grails-app/services/budapest/SpotifyService.groovy b/losningsforslag/grails-app/services/budapest/SpotifyService.groovy
+index 0a23b64..2f1c53f 100644
+--- a/losningsforslag/grails-app/services/budapest/SpotifyService.groovy
++++ b/losningsforslag/grails-app/services/budapest/SpotifyService.groovy
+@@ -11,12 +11,50 @@ class SpotifyService {
+ 	
+ 	List<Album> sokEtterAlbum(String artistNavn, String albumNavn) {
+ 		def spotifyAlbum = spotifyAPI.soekEtterAlbum(artistNavn, albumNavn, 1)
+-		List<Album> albumer = []	
++		List<Album> albumer = []
++		
+ 		spotifyAlbum.each { sa ->
+-			Album nyttAlbum = new Album(navn: sa.getName(), aar: sa.getReleased(), artist: new Artist(navn: sa.getArtists().iterator().next().getName()))  
+-			albumer.add(nyttAlbum)
+-		}
++			if(sa.erTilgjengeligINorge() && !Album.findBySpotifyURI(sa.getHref())){
++				def nyttAlbum = mappAlbum(sa)
++				albumer.add(nyttAlbum)
++			}
++		}	
+ 		albumer
+ 	}
+ 	
++	Album hentAlbum(String spotifyURI) {
++		Collection<SpotifyAlbum> albumColl = spotifyAPI.hentAlbumPaaSpotifyURIer([spotifyURI], 3)
++		def spotAlbum = albumColl.iterator().next()
++		def album = mappAlbum(spotAlbum);
++		return album
++	}
++	
++	private Album mappAlbum(SpotifyAlbum sa) {
++		def nyttAlbum = Album.findBySpotifyURI(sa.getHref())
++		if (nyttAlbum)
++			return nyttAlbum 
++		
++		nyttAlbum = new Album()
++		nyttAlbum.navn = sa.getName()
++		nyttAlbum.spotifyURI = sa.getHref()
++		nyttAlbum.aar = sa.getReleased()
++		
++		nyttAlbum.artist = mappArtist(sa)
++		
++		return nyttAlbum
++	}
++	
++	private Artist mappArtist(SpotifyAlbum spotifyAlbum) {
++		def artistURI = spotifyAlbum.getArtistid()
++		artistURI = artistURI ?: spotifyAlbum.getArtists()?.iterator()?.next()?.getHref()
++		
++		def nyArtist = Artist.findBySpotifyURI(artistURI);
++		if (nyArtist)
++			return nyArtist;
++		
++		def artistNavn = spotifyAlbum.getArtist();
++		artistNavn = artistNavn ?: spotifyAlbum.getArtists()?.iterator()?.next()?.getName()
++		return new Artist(navn: artistNavn, spotifyURI: artistURI)
++	}
++
+ }
+diff --git a/losningsforslag/grails-app/views/album/search.gsp b/losningsforslag/grails-app/views/album/search.gsp
+index a36f26f..e2f999c 100644
+--- a/losningsforslag/grails-app/views/album/search.gsp
++++ b/losningsforslag/grails-app/views/album/search.gsp
+@@ -6,6 +6,7 @@
+ 		<meta name="layout" content="main">
+ 		<g:set var="entityName" value="${message(code: 'album.label', default: 'Album')}" />
+ 		<title><g:message code="default.show.label" args="[entityName]" /></title>
++		<g:javascript library="jquery" />
+ 	</head>
+ 	<body>
+ 		<a href="#show-album" class="skip" tabindex="-1"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
+@@ -16,8 +17,14 @@
+ 				<li><g:link class="create" url="[action:'create',controller:'artist']">Ny artist</g:link></li>
+ 			</ul>
+ 		</div>
+-		<div role="main">
++		<div class="search" role="main">
+ 			<h1>Søk</h1>
++			
++			<g:if test="${flash.message}">
++				<div class="message" on role="status">${flash.message}</div>
++			</g:if>
++			<div id="messagebox" onload="this.style.display='none'"></div>
++			
+ 			<g:form action="search" method="get" >			
+ 				<label for="artist">Artist</label><g:textField name="artist"/>&nbsp;&nbsp;&nbsp;
+ 				<label for="album">Album</label><g:textField name="album"/>&nbsp;&nbsp;&nbsp;
+@@ -27,7 +34,14 @@
+ 			<g:if test="${albumliste}">
+ 				<ul>
+ 					<g:each in="${albumliste}" var="album">
+-						<li>${album.artist.navn} - ${album.navn}</li>
++					<g:form>
++						<li><g:submitToRemote id="${album.spotifyURI}" update="messagebox" value="+" action="add" 
++    							onSuccess="document.getElementById('${album.spotifyURI}').style.visibility = 'hidden'; 
++    										document.getElementById('messagebox').style.visibility = 'visible';
++    										document.getElementById('messagebox').classList.add('message')"/>&nbsp;&nbsp;
++    						${album.artist.navn} - ${album.navn}
++    						<input type="hidden" name="spotifyURI" value="${album.spotifyURI}" /></li>
++					</g:form >
+ 					</g:each>
+ 				</ul>
+ 			</g:if>
+diff --git a/losningsforslag/web-app/css/main.css b/losningsforslag/web-app/css/main.css
+index a55945d..cf896e4 100644
+--- a/losningsforslag/web-app/css/main.css
++++ b/losningsforslag/web-app/css/main.css
+@@ -204,6 +204,29 @@ img {
+ 
+ /* CREATE/EDIT FORMS AND SHOW PAGES */
+ 
++.search {
++	margin: 0 1em 0;
++}
++
++.search h1 {
++	border-bottom: 1px solid #CCCCCC;
++	margin: 0.8em 0 1em;
++	padding: 0 0.25em;
++}
++
++.search form {
++	margin: 0 0 0 1em;
++}
++
++.search ul {
++	margin: 1.5em 0 1em 0;
++}
++
++.search li {
++	list-style-type: none;
++	margin: 0.5em 0;
++}
++
+ fieldset,
+ .property-list {
+ 	margin: 0.6em 1.25em 0 1.25em;

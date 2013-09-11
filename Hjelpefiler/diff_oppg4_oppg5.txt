@@ -1,0 +1,20 @@
+diff --git a/losningsforslag/grails-app/views/album/list.gsp b/losningsforslag/grails-app/views/album/list.gsp
+index 6de8180..c1a0969 100644
+--- a/losningsforslag/grails-app/views/album/list.gsp
++++ b/losningsforslag/grails-app/views/album/list.gsp
+@@ -28,6 +28,7 @@
+ 						<th><g:message code="album.artist.label" default="Artist" /></th>
+ 						<g:sortableColumn property="navn" title="Album" />
+ 						<g:sortableColumn property="aar" title="År" />
++						<g:sortableColumn property="spotifyURI" title=" " />
+ 					</tr>
+ 				</thead>
+ 				<tbody>
+@@ -36,6 +37,7 @@
+ 						<td><g:link controller="artist" action="show" id="${albumInstance.artist.id}">${fieldValue(bean: albumInstance, field: "artist.navn")}</g:link></td>
+ 						<td><g:link action="show" id="${albumInstance.id}">${fieldValue(bean: albumInstance, field: "navn")}</g:link></td>
+ 						<td>${albumInstance.aar}</td>					
++						<td><g:if test="${albumInstance.spotifyURI}"><g:link url="${albumInstance.spotifyURI}">Åpne i Spotify</g:link></g:if></td>
+ 					</tr>
+ 				</g:each>
+ 				</tbody>

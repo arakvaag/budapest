@@ -1,0 +1,1085 @@
+diff --git a/losningsforslag/grails-app/conf/BuildConfig.groovy b/losningsforslag/grails-app/conf/BuildConfig.groovy
+index 900782a..e433316 100644
+--- a/losningsforslag/grails-app/conf/BuildConfig.groovy
++++ b/losningsforslag/grails-app/conf/BuildConfig.groovy
+@@ -39,7 +39,8 @@ grails.project.dependency.resolution = {
+     }
+ 
+     dependencies {
+-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
++		// specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
++    	compile group:'com.google.code.gson', name:'gson', version:'2.2.2'
+ 
+         // runtime 'mysql:mysql-connector-java:5.1.22'
+     }
+diff --git a/losningsforslag/grails-app/conf/spring/resources.groovy b/losningsforslag/grails-app/conf/spring/resources.groovy
+index fa95006..996a664 100644
+--- a/losningsforslag/grails-app/conf/spring/resources.groovy
++++ b/losningsforslag/grails-app/conf/spring/resources.groovy
+@@ -1,3 +1,9 @@
++import org.rakvag.spotifyapi.HTTPBufferedReader
++import org.rakvag.spotifyapi.SpotifyAPIImpl
++
+ // Place your Spring DSL code here
+ beans = {
++	spotifyAPI(SpotifyAPIImpl){
++		httpReader = new HTTPBufferedReader()
++	}
+ }
+diff --git a/losningsforslag/grails-app/controllers/budapest/AlbumController.groovy b/losningsforslag/grails-app/controllers/budapest/AlbumController.groovy
+index 9024c2b..6758b6a 100644
+--- a/losningsforslag/grails-app/controllers/budapest/AlbumController.groovy
++++ b/losningsforslag/grails-app/controllers/budapest/AlbumController.groovy
+@@ -6,6 +6,8 @@ class AlbumController {
+ 
+     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
+ 
++	SpotifyService spotifyService
++	
+     def index() {
+         redirect(action: "list", params: params)
+     }
+@@ -99,4 +101,18 @@ class AlbumController {
+             redirect(action: "show", id: id)
+         }
+     }
++	
++	def search() {
++		if(params.search && (params.artist || params.album)){
++			
++			def liste = spotifyService.sokEtterAlbum(params.artist, params.album)
++			if(liste.size() < 1) {
++				flash.message = "Fant ikke no gitt"
++			}
++			[albumliste: liste]
++		} else if(params.search){
++			flash.message = "Må jo skrive inn no da..."
++		}
++	}
++
+ }
+diff --git a/losningsforslag/grails-app/services/budapest/SpotifyService.groovy b/losningsforslag/grails-app/services/budapest/SpotifyService.groovy
+new file mode 100644
+index 0000000..0a23b64
+--- /dev/null
++++ b/losningsforslag/grails-app/services/budapest/SpotifyService.groovy
+@@ -0,0 +1,22 @@
++package budapest
++
++import java.util.List;
++
++import org.rakvag.spotifyapi.SpotifyAPI;
++import org.rakvag.spotifyapi.entity.SpotifyAlbum;
++
++class SpotifyService {
++	
++	SpotifyAPI spotifyAPI
++	
++	List<Album> sokEtterAlbum(String artistNavn, String albumNavn) {
++		def spotifyAlbum = spotifyAPI.soekEtterAlbum(artistNavn, albumNavn, 1)
++		List<Album> albumer = []	
++		spotifyAlbum.each { sa ->
++			Album nyttAlbum = new Album(navn: sa.getName(), aar: sa.getReleased(), artist: new Artist(navn: sa.getArtists().iterator().next().getName()))  
++			albumer.add(nyttAlbum)
++		}
++		albumer
++	}
++	
++}
+diff --git a/losningsforslag/grails-app/views/album/list.gsp b/losningsforslag/grails-app/views/album/list.gsp
+index a062643..6de8180 100644
+--- a/losningsforslag/grails-app/views/album/list.gsp
++++ b/losningsforslag/grails-app/views/album/list.gsp
+@@ -12,6 +12,7 @@
+ 		<div class="nav" role="navigation">
+ 			<ul>
+ 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
++				<li><g:link class="list" action="search">Søk album</g:link></li>
+ 				<li><g:link class="create" action="create">Nytt album</g:link></li>
+ 				<li><g:link class="create" url="[action:'create',controller:'artist']">Ny artist</g:link></li>
+ 			</ul>
+diff --git a/losningsforslag/grails-app/views/album/search.gsp b/losningsforslag/grails-app/views/album/search.gsp
+new file mode 100644
+index 0000000..a36f26f
+--- /dev/null
++++ b/losningsforslag/grails-app/views/album/search.gsp
+@@ -0,0 +1,37 @@
++
++<%@ page import="budapest.Album" %>
++<!DOCTYPE html>
++<html>
++	<head>
++		<meta name="layout" content="main">
++		<g:set var="entityName" value="${message(code: 'album.label', default: 'Album')}" />
++		<title><g:message code="default.show.label" args="[entityName]" /></title>
++	</head>
++	<body>
++		<a href="#show-album" class="skip" tabindex="-1"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
++		<div class="nav" role="navigation">
++			<ul>
++				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
++				<li><g:link class="create" action="create">Nytt album</g:link></li>
++				<li><g:link class="create" url="[action:'create',controller:'artist']">Ny artist</g:link></li>
++			</ul>
++		</div>
++		<div role="main">
++			<h1>Søk</h1>
++			<g:form action="search" method="get" >			
++				<label for="artist">Artist</label><g:textField name="artist"/>&nbsp;&nbsp;&nbsp;
++				<label for="album">Album</label><g:textField name="album"/>&nbsp;&nbsp;&nbsp;
++				<g:submitButton value="Søk" name="search" />
++			</g:form>
++			
++			<g:if test="${albumliste}">
++				<ul>
++					<g:each in="${albumliste}" var="album">
++						<li>${album.artist.navn} - ${album.navn}</li>
++					</g:each>
++				</ul>
++			</g:if>
++			
++		</div>
++	</body>
++</html>
+diff --git a/losningsforslag/src/java/.gitignore b/losningsforslag/src/java/.gitignore
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/BadGatewayException.java b/losningsforslag/src/java/org/rakvag/spotifyapi/BadGatewayException.java
+new file mode 100644
+index 0000000..9923840
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/BadGatewayException.java
+@@ -0,0 +1,14 @@
++package org.rakvag.spotifyapi;
++
++public class BadGatewayException extends RuntimeException {
++
++	private static final long serialVersionUID = -5591231919391108069L;
++	
++	public BadGatewayException(String message) {
++		super(message);
++	}
++	
++	public BadGatewayException(String message, Throwable cause) {
++		super(message, cause);
++	}
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/BildelinkInfo.java b/losningsforslag/src/java/org/rakvag/spotifyapi/BildelinkInfo.java
+new file mode 100644
+index 0000000..6f6487c
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/BildelinkInfo.java
+@@ -0,0 +1,26 @@
++package org.rakvag.spotifyapi;
++
++import java.util.HashMap;
++import java.util.Map;
++import java.util.Set;
++
++public class BildelinkInfo {
++	public String spotifyURI;
++	public String bildelink;
++
++	public BildelinkInfo(String spotifyURI, String bildelink) {
++		this.spotifyURI = spotifyURI;
++		this.bildelink = bildelink;
++	}
++
++	public static Map<String, String> lagMap(Set<BildelinkInfo> infoer) {
++		Map<String, String> map = new HashMap<String, String>();
++
++		for (BildelinkInfo info : infoer) {
++			if (info != null)
++				map.put(info.spotifyURI, info.bildelink);
++		}
++		
++		return map;
++	}
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/BildelinkLookup.java b/losningsforslag/src/java/org/rakvag/spotifyapi/BildelinkLookup.java
+new file mode 100644
+index 0000000..1d70a11
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/BildelinkLookup.java
+@@ -0,0 +1,78 @@
++package org.rakvag.spotifyapi;
++
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.InputStreamReader;
++import java.net.MalformedURLException;
++import java.net.URL;
++import java.util.concurrent.Callable;
++
++import org.rakvag.spotifyapi.entity.SpotifyAlbum;
++import org.rakvag.spotifyapi.entity.SpotifyArtist;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++public class BildelinkLookup implements Callable<BildelinkInfo> {
++
++	private static final Logger logger = LoggerFactory.getLogger(BildelinkLookup.class.getName());
++
++	private String spotifyURI;
++
++	public BildelinkLookup(String spotifyURI) {
++		this.spotifyURI = spotifyURI;
++	}
++
++	@Override
++	public BildelinkInfo call() throws Exception {
++		StringBuffer html = new StringBuffer();
++		logger.info("Henter link til bilde tilhørende URI: " + this.spotifyURI);
++		InputStream is = null;
++		try {
++			String spotifylink = null;
++			if (this.spotifyURI.contains("album"))
++				spotifylink = SpotifyAlbum.lagSpotifylink(this.spotifyURI);
++			else if (this.spotifyURI.contains("artist"))
++				spotifylink = SpotifyArtist.lagSpotifylink(this.spotifyURI);
++			else
++				throw new RuntimeException("Typen Spotify-entitet er ukjent");
++
++			URL url = new URL(spotifylink);
++			is = url.openStream();
++			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
++			String line = null;
++			while ((line = reader.readLine()) != null) {
++				html.append(line);
++			}
++			reader.close();
++		} catch (MalformedURLException e) {
++			logger.warn("Feil ved kall mot Spotify");
++			logger.warn(e.getMessage());
++			return null;
++		} catch (IOException e) {
++			logger.warn("Feil ved kall mot Spotify");
++			logger.warn(e.getMessage());
++			return null;
++		} finally {
++			try {
++				if (is != null)
++					is.close();
++			} catch (IOException e) {
++				logger.warn("Feil ved kall mot Spotify");
++				logger.warn(e.getMessage());
++				return null;
++			}
++		}
++
++		int indeksStart = html.indexOf("http://o.scdn.co/300/");
++		if (indeksStart < 1)
++			return null;
++		int indeksSlutt = html.indexOf("\" border=\"0\"", indeksStart);
++		if (indeksStart < 1)
++			return null;
++
++		logger.info("Ferdig å hente link til covertart på album med URI: " + this.spotifyURI);
++		return new BildelinkInfo(this.spotifyURI, html.substring(indeksStart, indeksSlutt));
++	}
++
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/HTTPBufferedReader.java b/losningsforslag/src/java/org/rakvag/spotifyapi/HTTPBufferedReader.java
+new file mode 100644
+index 0000000..f9ef335
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/HTTPBufferedReader.java
+@@ -0,0 +1,66 @@
++package org.rakvag.spotifyapi;
++
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStreamReader;
++import java.net.MalformedURLException;
++import java.net.URL;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++
++/**
++ * Klasse som forenkler lesing av innhold over HTTP, og også mocking av HTTP-kall der denne klassen brukes.
++ * 
++ * @author André Rakvåg (andre@rakvag.org)
++ */
++public class HTTPBufferedReader {
++
++	private static final Logger logger = LoggerFactory.getLogger(HTTPBufferedReader.class.getName());
++
++	private BufferedReader bufferedReader;
++
++	public void aapne(String url) {
++		try {
++			bufferedReader = new BufferedReader(new InputStreamReader((new URL(url)).openStream()));
++		} catch (MalformedURLException e) {
++			logger.error("Ugyldig URL oppgitt");
++			logger.error(e.getMessage());
++			throw new RuntimeException(e.getMessage(), e);
++		} catch (IOException e) {
++			if (e.getMessage().contains("Server returned HTTP response code: 502"))
++				throw new BadGatewayException(e.getMessage(), e);
++			logger.error("IO-feil");
++			logger.error(e.getMessage());
++			throw new RuntimeException(e.getMessage(), e);
++		}
++	}
++
++	public String lesLinje() {
++		try {
++			if (bufferedReader == null)
++				throw new IllegalStateException("Kobling er ikke åpen");
++			return bufferedReader.readLine();
++		} catch (IOException e) {
++			if (e.getMessage().contains("Server returned HTTP response code: 502"))
++				throw new BadGatewayException(e.getMessage(), e);
++			logger.error("IO-feil");
++			logger.error(e.getMessage());
++			throw new RuntimeException(e.getMessage(), e);
++		}
++	}
++
++	public void lukkKobling() {
++		try {
++			if (bufferedReader == null)
++				throw new IllegalStateException("Kobling er ikke åpen");
++			bufferedReader.close();
++		} catch (IOException e) {
++			logger.error("IO-feil");
++			logger.error(e.getMessage());
++			throw new RuntimeException(e.getMessage(), e);
++		}
++	}
++
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/SearchResult.java b/losningsforslag/src/java/org/rakvag/spotifyapi/SearchResult.java
+new file mode 100644
+index 0000000..a3db886
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/SearchResult.java
+@@ -0,0 +1,128 @@
++package org.rakvag.spotifyapi;
++
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.List;
++import java.util.Map;
++
++import org.rakvag.spotifyapi.entity.SpotifyAlbum;
++import org.rakvag.spotifyapi.entity.SpotifyArtist;
++import org.rakvag.spotifyapi.entity.SpotifyTrack;
++
++import com.google.gson.Gson;
++
++public class SearchResult {
++
++	private List<SpotifyAlbum> albums;
++	private SpotifyAlbum album;
++	private SpotifyTrack track;
++	private SpotifyArtist artist;
++
++	public static SearchResult parseJsonSearchResult(String jsonResponse) {
++		// Har ikke funnet hvordan GSON kan deserialisere når feltnavnet har - i seg
++		jsonResponse = jsonResponse.replace("-id", "id");
++		jsonResponse = jsonResponse.replace("-number", "number");
++		SearchResult resultat = new Gson().fromJson(jsonResponse, SearchResult.class);
++		return sikreEnObjektinstansPrEntitet(resultat);
++	}
++
++	private static SearchResult sikreEnObjektinstansPrEntitet(SearchResult resultat) {
++		Map<String, SpotifyAlbum> albumMap = new HashMap<String, SpotifyAlbum>();
++		Map<String, SpotifyTrack> trackMap = new HashMap<String, SpotifyTrack>();
++		Map<String, SpotifyArtist> artistMap = new HashMap<String, SpotifyArtist>();
++
++		SearchResult vasketResultat = new SearchResult();
++
++		if (resultat.albums != null) {
++			vasketResultat.albums = new ArrayList<SpotifyAlbum>();
++			for (SpotifyAlbum album : resultat.getAlbums()) {
++				vasketResultat.albums.add(sikreEnObjektinstansPrEntitet(album, albumMap, trackMap, artistMap));
++			}
++		}
++		if (resultat.album != null)
++			vasketResultat.album = sikreEnObjektinstansPrEntitet(resultat.album, albumMap, trackMap, artistMap);
++		if (resultat.artist != null)
++			vasketResultat.artist = sikreEnObjektinstansPrEntitet(resultat.artist, albumMap, trackMap, artistMap);
++		if (resultat.track != null)
++			vasketResultat.track = sikreEnObjektinstansPrEntitet(resultat.track, albumMap, trackMap, artistMap);
++
++		return vasketResultat;
++	}
++
++	private static SpotifyAlbum sikreEnObjektinstansPrEntitet(SpotifyAlbum album,
++			final Map<String, SpotifyAlbum> albumMap, final Map<String, SpotifyTrack> trackMap,
++			final Map<String, SpotifyArtist> artistMap) {
++
++		if (albumMap.containsKey(album.getHref()))
++			return albumMap.get(album.getHref());
++
++		albumMap.put(album.getHref(), album);
++		if (album.getTracks() != null) {
++			List<SpotifyTrack> nyeTracks = new ArrayList<SpotifyTrack>();
++			for (SpotifyTrack track : album.getTracks()) {
++				nyeTracks.add(sikreEnObjektinstansPrEntitet(track, albumMap, trackMap, artistMap));
++			}
++			album.setTracks(nyeTracks);
++		}
++
++		return album;
++	}
++
++	private static SpotifyTrack sikreEnObjektinstansPrEntitet(SpotifyTrack track,
++			final Map<String, SpotifyAlbum> albumMap, final Map<String, SpotifyTrack> trackMap,
++			final Map<String, SpotifyArtist> artistMap) {
++
++		if (trackMap.containsKey(track.getHref()))
++			return trackMap.get(track.getHref());
++
++		trackMap.put(track.getHref(), track);
++		if (track.getAlbum() != null) {
++			if (albumMap.containsKey(track.getAlbum().getHref()))
++				track.setAlbum(albumMap.get(track.getAlbum().getHref()));
++			else
++				track.setAlbum(sikreEnObjektinstansPrEntitet(track.getAlbum(), albumMap, trackMap, artistMap));
++		}
++		if (track.getArtists() != null) {
++			List<SpotifyArtist> nyeArtists = new ArrayList<SpotifyArtist>();
++			for (SpotifyArtist artist : track.getArtists()) {
++				nyeArtists.add(sikreEnObjektinstansPrEntitet(artist, albumMap, trackMap, artistMap));
++			}
++			track.setArtists(nyeArtists);
++		}
++
++		return track;
++	}
++
++	private static SpotifyArtist sikreEnObjektinstansPrEntitet(SpotifyArtist artist,
++			final Map<String, SpotifyAlbum> albumMap, final Map<String, SpotifyTrack> trackMap,
++			final Map<String, SpotifyArtist> artistMap) {
++
++		if (artistMap.containsKey(artist.getHref()))
++			return artistMap.get(artist.getHref());
++
++		artistMap.put(artist.getHref(), artist);
++
++		return artist;
++	}
++
++	public List<SpotifyAlbum> getAlbums() {
++		return albums;
++	}
++
++	public SpotifyAlbum getAlbum() {
++		return album;
++	}
++
++	public SpotifyTrack getTrack() {
++		return track;
++	}
++
++	public void setTrack(SpotifyTrack track) {
++		this.track = track;
++	}
++
++	public SpotifyArtist getArtist() {
++		return artist;
++	}
++
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyAPI.java b/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyAPI.java
+new file mode 100644
+index 0000000..a5a5ce0
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyAPI.java
+@@ -0,0 +1,25 @@
++package org.rakvag.spotifyapi;
++
++import java.util.Collection;
++import java.util.List;
++import java.util.Map;
++
++import org.rakvag.spotifyapi.entity.SpotifyAlbum;
++import org.rakvag.spotifyapi.entity.SpotifyArtist;
++import org.rakvag.spotifyapi.entity.SpotifyTrack;
++
++public interface SpotifyAPI {
++	List<SpotifyAlbum> soekEtterAlbum(String artist, String album, int maksForsoek);
++
++	Collection<SpotifyAlbum> hentAlbumPaaSpotifyURIer(Collection<String> spotifyURIer, int maksForsoek);
++
++	Map<String, SpotifyArtist> hentArtisterPaaSpotifyURIer(Collection<String> spotifyURIer, int maksForsoek);
++
++	SpotifyArtist hentArtistPaaSpotifyURI(String spotifyURI, int i);
++
++	Map<String, SpotifyTrack> hentTracksPaaSpotifyURIer(Collection<String> spotifyURIer, int maksForsoek);
++
++	Map<String, String> hentBildelinker(Collection<String> spotifyURIer);
++
++	String hentBildelink(String artistURI);
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyAPIImpl.java b/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyAPIImpl.java
+new file mode 100644
+index 0000000..4368ea3
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyAPIImpl.java
+@@ -0,0 +1,254 @@
++package org.rakvag.spotifyapi;
++
++import java.util.ArrayList;
++import java.util.Collection;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.List;
++import java.util.Map;
++import java.util.Set;
++import java.util.concurrent.ExecutionException;
++import java.util.concurrent.ExecutorService;
++import java.util.concurrent.Executors;
++import java.util.concurrent.Future;
++import java.util.concurrent.TimeUnit;
++
++import org.rakvag.spotifyapi.entity.SpotifyAlbum;
++import org.rakvag.spotifyapi.entity.SpotifyArtist;
++import org.rakvag.spotifyapi.entity.SpotifyTrack;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++public class SpotifyAPIImpl implements SpotifyAPI {
++
++	private static final Logger logger = LoggerFactory.getLogger(SpotifyAPIImpl.class.getName());
++	private static final int MAX_ANTALL_TRAADER = 16;
++	private static final int TIMEOUT_TRAADER = 60;
++
++	private HTTPBufferedReader httpReader;
++
++	@Override
++	public List<SpotifyAlbum> soekEtterAlbum(String artist, String album, int maxForsek) {
++		artist = trimTilNull(artist);
++		album = trimTilNull(album);
++
++		if (artist == null && album == null)
++			return new ArrayList<SpotifyAlbum>();
++
++		artist = haandterSpesialtegn(artist);
++		album = haandterSpesialtegn(album);
++		StringBuilder soekestreng = new StringBuilder(artist == null ? "" : "artist:" + artist);
++		if (artist != null && album != null)
++			soekestreng.append("+");
++		soekestreng.append(album == null ? "" : "album:" + album);
++
++		logger.info("Kaller Spotify");
++		boolean proevEnGangTil = false;
++		int antallForsoek = 0;
++		StringBuffer soekerespons = new StringBuffer();
++		do {
++			try {
++				antallForsoek++;
++				httpReader.aapne("http://ws.spotify.com/search/1/album.json?q=" + soekestreng.toString());
++				String line = null;
++				while ((line = httpReader.lesLinje()) != null) {
++					soekerespons.append(line);
++				}
++				httpReader.lukkKobling();
++				proevEnGangTil = false;
++			} catch (BadGatewayException bge) {
++				if (antallForsoek >= maxForsek)
++					throw bge;
++				proevEnGangTil = true;
++			}
++
++		} while (proevEnGangTil);
++
++		SearchResult soekeResultat = SearchResult.parseJsonSearchResult(soekerespons.toString());
++
++		if (soekeResultat.getAlbums() != null && soekeResultat.getAlbums().size() > 0) {
++			return soekeResultat.getAlbums();
++		} else
++			return new ArrayList<SpotifyAlbum>();
++	}
++
++	private String haandterSpesialtegn(String streng) {
++		if (streng == null)
++			return null;
++
++		streng = streng.replace(" ", "+");
++		streng = streng.replace("æ", "ae");
++		streng = streng.replace("ø", "o");
++		streng = streng.replace("å", "a");
++		streng = streng.replace("ä", "a");
++		streng = streng.replace("ö", "o");
++		streng = streng.replace("Æ", "AE");
++		streng = streng.replace("Ø", "O");
++		streng = streng.replace("Å", "A");
++		streng = streng.replace("Ä", "A");
++		streng = streng.replace("Ö", "O");
++		return streng;
++	}
++
++	private String trimTilNull(String streng) {
++		if (streng == null)
++			return null;
++
++		streng = streng.trim();
++		if (streng.isEmpty())
++			return null;
++
++		return streng;
++	}
++
++	@Override
++	public Collection<SpotifyAlbum> hentAlbumPaaSpotifyURIer(Collection<String> spotifyURIer, int maksForsoek) {
++		List<SearchResult> resultatene = hentPaaSpotifyURIer(new ArrayList<String>(spotifyURIer), maksForsoek);
++		Collection<SpotifyAlbum> albumene = new HashSet<SpotifyAlbum>();
++		for (SearchResult resultat : resultatene)
++			albumene.add(resultat.getAlbum());
++		return albumene;
++	}
++
++	@Override
++	public Map<String, SpotifyArtist> hentArtisterPaaSpotifyURIer(Collection<String> spotifyURIer, int maksForsoek) {
++		List<SearchResult> resultatene = hentPaaSpotifyURIer(new ArrayList<String>(spotifyURIer), maksForsoek);
++		Map<String, SpotifyArtist> artistene = new HashMap<String, SpotifyArtist>();
++		for (SearchResult resultat : resultatene) {
++			artistene.put(resultat.getArtist().getHref(), resultat.getArtist());
++		}
++
++		return artistene;
++	}
++
++	@Override
++	public SpotifyArtist hentArtistPaaSpotifyURI(String spotifyURI, int maksForsoek) {
++		SearchResult searchResult = null;
++		try {
++			searchResult = new SpotifyLookup(spotifyURI, maksForsoek).call();
++		} catch (Exception e) {
++			throw new RuntimeException(e.getMessage(), e.getCause());
++		}
++		return searchResult != null ? searchResult.getArtist() : null;
++	}
++
++	@Override
++	public Map<String, SpotifyTrack> hentTracksPaaSpotifyURIer(Collection<String> spotifyURIer, int maksForsoek) {
++		List<SearchResult> resultatene = hentPaaSpotifyURIer(new ArrayList<String>(spotifyURIer), maksForsoek);
++		Map<String, SpotifyTrack> tracks = new HashMap<String, SpotifyTrack>();
++		for (SearchResult resultat : resultatene) {
++			SpotifyTrack track = resultat.getTrack();
++			tracks.put(track.getHref(), track);
++		}
++		return tracks;
++	}
++
++	@Override
++	public Map<String, String> hentBildelinker(Collection<String> spotifyURIer) {
++		List<BildelinkLookup> traader = new ArrayList<BildelinkLookup>();
++		for (String spotifyURI : spotifyURIer)
++			traader.add(new BildelinkLookup(spotifyURI));
++		List<Future<BildelinkInfo>> traadTasks = null;
++		boolean proevIgjen = false;
++		int antallTraader = MAX_ANTALL_TRAADER;
++		do {
++			ExecutorService executor = Executors.newFixedThreadPool(MAX_ANTALL_TRAADER);
++			try {
++				traadTasks = executor.invokeAll(traader, TIMEOUT_TRAADER, TimeUnit.SECONDS);
++				proevIgjen = false;
++			} catch (InterruptedException e) {
++				if (antallTraader > 5) {
++					proevIgjen = true;
++					antallTraader -= 5;
++				}
++				throw new RuntimeException("Forsøk på å starte " + antallTraader + " tråder feiler. Feilmelding: "
++						+ e.getMessage(), e);
++			} catch (OutOfMemoryError e) {
++				logger.warn("Fikk OutOfMemoryError ved forsøk på å åpne " + antallTraader + " tråder");
++				if (antallTraader > 5) {
++					proevIgjen = true;
++					antallTraader -= 5;
++				}
++				throw new RuntimeException("Forsøk på å starte " + antallTraader + " tråder feiler. Feilmelding: "
++						+ e.getMessage(), e);
++			}
++		} while (proevIgjen);
++
++		Set<BildelinkInfo> resultatene = new HashSet<BildelinkInfo>();
++		for (Future<BildelinkInfo> task : traadTasks) {
++			try {
++				resultatene.add(task.get());
++			} catch (InterruptedException e) {
++				throw new RuntimeException(e.getMessage(), e);
++			} catch (ExecutionException e) {
++				throw new RuntimeException(e.getMessage(), e);
++			}
++		}
++
++		return BildelinkInfo.lagMap(resultatene);
++	}
++
++	@Override
++	public String hentBildelink(String artistURI) {
++		BildelinkInfo info;
++		try {
++			info = new BildelinkLookup(artistURI).call();
++		} catch (Exception e) {
++			throw new RuntimeException(e.getMessage(), e.getCause());
++		}
++		return info != null ? info.bildelink : null;
++	}
++
++	private List<SearchResult> hentPaaSpotifyURIer(List<String> spotifyURIer, int maksForsoek) {
++		List<SpotifyLookup> oppslag = new ArrayList<SpotifyLookup>();
++		for (String spotifyURI : spotifyURIer) {
++			if (spotifyURI != null)
++				oppslag.add(new SpotifyLookup(spotifyURI, 10));
++		}
++
++		List<Future<SearchResult>> traadTasks = null;
++		boolean proevIgjen = false;
++		int antallTraader = MAX_ANTALL_TRAADER;
++		do {
++			ExecutorService executor = Executors.newFixedThreadPool(MAX_ANTALL_TRAADER);
++			try {
++				traadTasks = executor.invokeAll(oppslag, TIMEOUT_TRAADER, TimeUnit.SECONDS);
++				proevIgjen = false;
++			} catch (InterruptedException e) {
++				if (antallTraader > 5) {
++					proevIgjen = true;
++					antallTraader -= 5;
++				} else {
++					throw new RuntimeException("Forsøk på å starte " + antallTraader + " tråder feiler. Feilmelding: "
++							+ e.getMessage(), e);
++				}
++			} catch (OutOfMemoryError e) {
++				logger.warn("Fikk OutOfMemoryError ved forsøk på å åpne " + antallTraader + " tråder");
++				if (antallTraader > 5) {
++					proevIgjen = true;
++					antallTraader -= 5;
++				} else {
++					throw new RuntimeException("Forsøk på å starte " + antallTraader + " tråder feiler. Feilmelding: "
++							+ e.getMessage(), e);
++				}
++			}
++		} while (proevIgjen);
++
++		List<SearchResult> resultatene = new ArrayList<SearchResult>();
++		for (Future<SearchResult> task : traadTasks) {
++			try {
++				resultatene.add(task.get());
++			} catch (InterruptedException e) {
++				throw new RuntimeException(e.getMessage(), e);
++			} catch (ExecutionException e) {
++				throw new RuntimeException(e.getMessage(), e);
++			}
++		}
++
++		return resultatene;
++	}
++
++	public void setHttpReader(HTTPBufferedReader httpReader) {
++		this.httpReader = httpReader;
++	}
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyLookup.java b/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyLookup.java
+new file mode 100644
+index 0000000..15d6109
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/SpotifyLookup.java
+@@ -0,0 +1,92 @@
++package org.rakvag.spotifyapi;
++
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.InputStreamReader;
++import java.net.MalformedURLException;
++import java.net.URL;
++import java.util.concurrent.Callable;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++class SpotifyLookup implements Callable<SearchResult> {
++
++	private static final Logger logger = LoggerFactory.getLogger(SpotifyLookup.class.getName());
++
++	private String spotifyURI;
++	private int maksForsoek;
++
++	public SpotifyLookup(String spotifyURI, int maksForsoek) {
++		this.spotifyURI = spotifyURI;
++		this.maksForsoek = maksForsoek;
++	}
++
++	@Override
++	public SearchResult call() throws Exception {
++		boolean proevEnGangTil = false;
++		int antallForsoek = 0;
++		SearchResult searchResult = null;
++		do {
++			try {
++				antallForsoek++;
++				searchResult = utfoerHentPaaSpotifyURI(this.spotifyURI);
++				proevEnGangTil = (searchResult == null);
++			} catch (BadGatewayException bge) {
++				if (antallForsoek >= this.maksForsoek)
++					return null;
++				proevEnGangTil = true;
++			}
++		} while (proevEnGangTil && antallForsoek < this.maksForsoek);
++
++		return searchResult;
++	}
++
++	private SearchResult utfoerHentPaaSpotifyURI(String spotifyURI) {
++		StringBuffer lookuprespons = new StringBuffer();
++		logger.info("Starter lookup av SpotifyURI: " + spotifyURI);
++		InputStream is = null;
++		try {
++			StringBuffer urlStr = new StringBuffer("http://ws.spotify.com/lookup/1/.json?uri=" + spotifyURI);
++			if (spotifyURI.contains("album"))
++				urlStr.append("&extras=trackdetail");
++			else if (spotifyURI.contains("artist"))
++				urlStr.append("&extras=albumdetail");
++			URL url = new URL(urlStr.toString());
++			is = url.openStream();
++			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
++			String line = null;
++			while ((line = reader.readLine()) != null) {
++				lookuprespons.append(line);
++			}
++			reader.close();
++		} catch (MalformedURLException e) {
++			logger.warn("Feil ved kall mot Spotify");
++			logger.warn(e.getMessage());
++			return null;
++		} catch (IOException e) {
++			return haandterIOException(e);
++		} finally {
++			try {
++				if (is != null)
++					is.close();
++			} catch (IOException e) {
++				return haandterIOException(e);
++			}
++		}
++
++		logger.info("Ferdig med lookup av SpotifyURI: " + spotifyURI);
++		return SearchResult.parseJsonSearchResult(lookuprespons.toString());
++	}
++
++	private SearchResult haandterIOException(IOException e) {
++		if (e.getMessage().contains("Server returned HTTP response code: 502"))
++			throw new BadGatewayException(e.getMessage());
++
++		logger.warn("Feil ved kall mot Spotify");
++		logger.warn(e.getMessage());
++		return null;
++	}
++
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/entity/Availability.java b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/Availability.java
+new file mode 100644
+index 0000000..fea11c5
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/Availability.java
+@@ -0,0 +1,9 @@
++package org.rakvag.spotifyapi.entity;
++
++public class Availability {
++	private String territories;
++	
++	public String getTerritories() {
++		return territories;
++	}
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyAlbum.java b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyAlbum.java
+new file mode 100644
+index 0000000..187ef65
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyAlbum.java
+@@ -0,0 +1,73 @@
++package org.rakvag.spotifyapi.entity;
++
++import java.util.List;
++
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++public class SpotifyAlbum extends SpotifyEntitet {
++
++	private static final Logger logger = LoggerFactory.getLogger(SpotifyEntitet.class.getName());
++
++	private String artistid;
++	private String artist;
++	private int released;
++	private List<SpotifyTrack> tracks;
++	private List<SpotifyArtist> artists;
++	private Availability availability;
++
++	public SpotifyAlbum() {
++		super();
++	}
++
++	public static String lagSpotifylink(String spotifyURI) {
++		return "http://open.spotify.com/album/" + spotifyURI.split(":")[2];
++	}
++
++	public boolean erTilgjengeligINorge() {
++		if (availability == null) {
++			logger.warn("På SpotifyAlbum med href " + href + " er availability = null");
++			return false;
++		}
++
++		String territories = availability.getTerritories();
++		return ((territories.contains("NO") || territories.contains("worldwide")));
++	}
++
++	public String getArtistid() {
++		return artistid;
++	}
++
++	public int getReleased() {
++		return released;
++	}
++
++	public List<SpotifyTrack> getTracks() {
++		return tracks;
++	}
++
++	public Availability getAvailability() {
++		return availability;
++	}
++
++	public void setTracks(List<SpotifyTrack> tracks) {
++		this.tracks = tracks;
++	}
++
++	public String getArtist() {
++		return artist;
++	}
++
++	public void setArtist(String artist) {
++		this.artist = artist;
++	}
++
++	public List<SpotifyArtist> getArtists() {
++		return artists;
++	}
++
++	public void setArtists(List<SpotifyArtist> artists) {
++		this.artists = artists;
++	}
++
++}
+\ No newline at end of file
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyArtist.java b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyArtist.java
+new file mode 100644
+index 0000000..ca9793e
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyArtist.java
+@@ -0,0 +1,22 @@
++package org.rakvag.spotifyapi.entity;
++
++import java.util.List;
++
++import org.rakvag.spotifyapi.SearchResult;
++
++public class SpotifyArtist extends SpotifyEntitet {
++	private List<SearchResult> albums;
++
++	public SpotifyArtist() {
++		super();
++	}
++	
++	public List<SearchResult> getAlbums() {
++		return albums;
++	}
++
++	public static String lagSpotifylink(String artistURI) {
++		return "http://open.spotify.com/artist/" + artistURI.split(":")[2];
++	}
++
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyEntitet.java b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyEntitet.java
+new file mode 100644
+index 0000000..32b0776
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyEntitet.java
+@@ -0,0 +1,23 @@
++package org.rakvag.spotifyapi.entity;
++
++public abstract class SpotifyEntitet {
++	protected String href;
++	protected String name;
++
++	public String getName() {
++		return name;
++	}
++
++	public void setName(String name) {
++		this.name = name;
++	}
++
++	public String getHref() {
++		return href;
++	}
++
++	public void setHref(String href) {
++		this.href = href;
++	}
++
++}
+diff --git a/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyTrack.java b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyTrack.java
+new file mode 100644
+index 0000000..5157c97
+--- /dev/null
++++ b/losningsforslag/src/java/org/rakvag/spotifyapi/entity/SpotifyTrack.java
+@@ -0,0 +1,50 @@
++package org.rakvag.spotifyapi.entity;
++
++import java.util.List;
++
++public class SpotifyTrack extends SpotifyEntitet {
++
++	private int tracknumber;
++	private int discnumber;
++	private float popularity;
++	private float length;
++	private SpotifyAlbum album;
++	private List<SpotifyArtist> artists;
++
++	public SpotifyTrack() {
++		super();
++	}
++	
++	public int getTracknumber() {
++		return tracknumber;
++	}
++
++	public int getDiscnumber() {
++		return discnumber;
++	}
++
++	public float getPopularity() {
++		return popularity;
++	}
++
++	public float getLength() {
++		return length;
++	}
++
++	public SpotifyAlbum getAlbum() {
++		return album;
++	}
++
++	public void setAlbum(SpotifyAlbum album) {
++		this.album = album;
++	}
++
++	public List<SpotifyArtist> getArtists() {
++		return artists;
++	}
++
++	public void setArtists(List<SpotifyArtist> artists) {
++		this.artists = artists;
++	}
++
++}

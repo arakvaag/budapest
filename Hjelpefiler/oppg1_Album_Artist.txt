@@ -1,0 +1,25 @@
+package budapest
+
+
+class Album {
+
+	String navn
+	Integer aar
+	Artist artist
+	
+	static constraints = {
+		aar nullable:true
+	}
+	
+}
+package budapest
+
+class Artist {
+
+	String navn
+	
+	static hasMany = [album:Album]
+	
+    static constraints = {
+    }
+}
