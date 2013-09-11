@@ -30,6 +30,15 @@
 						<span class="property-value" aria-labelledby="navn-label"><g:fieldValue bean="${artistInstance}" field="navn"/></span>
 					
 				</li>
+
+				</g:if>
+				<g:if test="${artistInstance?.album}">
+					<li class="fieldcontain">
+						<span id="album-label" class="property-label"><g:message code="artist.album.label" default="Album" /></span>
+						<g:each in="${artistInstance.album}" var="a">
+							<span class="property-value" aria-labelledby="album-label"><g:link controller="album" action="show" id="${a.id}">${a?.navn}</g:link></span>
+						</g:each>					
+					</li>
 				</g:if>
 			
 			</ol>
