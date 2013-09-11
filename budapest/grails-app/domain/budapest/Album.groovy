@@ -10,6 +10,7 @@ class Album {
 	
     static constraints = {
     	aar nullable:true
+		spotifyURI unique:true,  nullable: true
 		urlCoverArt nullable:true
 	}
 	

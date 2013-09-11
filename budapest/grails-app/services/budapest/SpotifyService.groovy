@@ -33,11 +33,14 @@ class SpotifyService {
 	}
 	
 	private Album mappAlbum(SpotifyAlbum sa) {
-		def nyttAlbum = new Album()
+		def nyttAlbum = Album.findBySpotifyURI(sa.getHref())
+		if (nyttAlbum)
+			return nyttAlbum 
+		
+		nyttAlbum = new Album()
 		nyttAlbum.navn = sa.getName()
 		nyttAlbum.spotifyURI = sa.getHref()
 		nyttAlbum.aar = sa.getReleased()
-		
 		
 		nyttAlbum.artist = mappArtist(sa)
 		
